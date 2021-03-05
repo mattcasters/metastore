@@ -46,6 +46,8 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
 
   private final XmlMetaStoreCache metaStoreCache;
 
+  protected boolean notLocking;
+
   public XmlMetaStore() throws MetaStoreException {
     this( new AutomaticXmlMetaStoreCache() );
   }
@@ -677,6 +679,9 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
    *           in case we have to wait more than 10 seconds to acquire a lock
    */
   protected void lockStore() throws MetaStoreException {
+    if ( notLocking ) {
+      return;
+    }
     boolean waiting = true;
     long totalTime = 0L;
     while ( waiting ) {
@@ -701,7 +706,26 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
   }
 
   protected void unlockStore() {
+    if ( notLocking ) {
+      return;
+    }
     File lockFile = new File( rootFile, ".lock" );
     lockFile.delete();
+  }
+
+  /**
+   * Gets notLocking
+   *
+   * @return value of notLocking
+   */
+  public boolean isNotLocking() {
+    return notLocking;
+  }
+
+  /**
+   * @param notLocking The notLocking to set
+   */
+  public void setNotLocking( boolean notLocking ) {
+    this.notLocking = notLocking;
   }
 }
